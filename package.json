@@ -1,0 +1,24 @@
+{
+  "name": "bookstore-manager-cli",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/gabriellunelli/BookStore-Manager-CLI#readme",
+  "bugs": {
+    "url": "https://github.com/gabriellunelli/BookStore-Manager-CLI/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabriellunelli/BookStore-Manager-CLI.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run dev": "npx tsc && node dist/main.js"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

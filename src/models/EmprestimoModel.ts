@@ -1,0 +1,1 @@
+export type Emprestimo = {cliente_id:number, livro_id:number, data_emprestimo:string}

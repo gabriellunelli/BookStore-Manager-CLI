@@ -1,33 +1,33 @@
-import { AUTORES } from "../data/seed";
+import { AUTORES_INICIAIS } from "../data/seed";
 import { Autor } from "../models/AutorModel";
 import { verificar } from "../utils/verificarVazio";
 
-const autores:Autor[] = []
+export const AUTORES:Autor[] = []
 
-export function carregarAutores() {
-    for (const autor of AUTORES) {
-        autores.push(autor)
+export function carregarAutoresIniciais() {
+    for (const autor of AUTORES_INICIAIS) {
+        AUTORES.push(autor)
     }
 }
 
 export function cadastrarAutor(autor:Autor) {
-    autores.push(autor)
+    AUTORES.push(autor)
 }
 
 export function listarAutores() {
-    console.log(autores)
+    console.log(AUTORES)
 }
 
 export function consultarAutorEspecifico(autor_id:number) {
-    const verificacao = verificar(autores[autor_id])
+    const verificacao = verificar(AUTORES[autor_id])
     if (verificacao === true){
-        console.log(autores[autor_id])
+        console.log(AUTORES[autor_id])
     }
     
 }
 
 export function atualizarAutor(autor_id:number) {
-    if (autores[autor_id] != null && autores[autor_id] != undefined){
+    if (AUTORES[autor_id] != null && AUTORES[autor_id] != undefined){
         let novoId:number = Number(prompt('Informe o novo ID do autor: '))
         while (novoId === null) {
             console.log('Nenhum dado informado, por favor digite um valor válido.')
@@ -36,7 +36,7 @@ export function atualizarAutor(autor_id:number) {
 
         }
 
-        autores[autor_id].id = novoId
+        AUTORES[autor_id].id = novoId
 
         let novoNome = prompt('Informe o novo nome do autor: ')
         while (novoNome === null) {
@@ -45,13 +45,13 @@ export function atualizarAutor(autor_id:number) {
             novoNome = prompt('Informe o novo nome do autor: ')
 
         }
-        autores[autor_id].nome = novoNome
+        AUTORES[autor_id].nome = novoNome
     }
 }
 
 export function removerAutor(autor_id:number) {
-    const verificacao = verificar(autores[autor_id])
+    const verificacao = verificar(AUTORES[autor_id])
     if (verificacao === true){
-        autores.splice(autor_id)
+        AUTORES.splice(autor_id)
     }
 }

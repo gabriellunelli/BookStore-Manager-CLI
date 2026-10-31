@@ -1,1 +1,1 @@
-export type Livro = {id:number, nome:string, autor_id:number, data_lancamento:string}
+export type Livro = {id:number, nome:string, autor_id:number, data_lancamento:string, estoque:number}

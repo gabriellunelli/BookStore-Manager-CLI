@@ -1,66 +1,85 @@
-import { EMPRESTIMOS_INICIAIS } from "../data/seed";
-import { Emprestimo } from "../models/EmprestimoModel";
-import { verificar } from "../utils/verificarVazio";
-import { CLIENTES } from "./ClienteRepository";
-import { LIVROS } from "./LivroRepository";
+import { EMPRESTIMOS_INICIAIS } from "../data/seed"
+import { CLIENTES, EMPRESTIMOS, LIVROS } from "../data/store"
+import { Emprestimo } from "../models/EmprestimoModel"
+import { perguntarInteiro } from "../utils/entrada"
 
-export const EMPRESTIMOS:Emprestimo[] = []
+export { EMPRESTIMOS }
 
-export function carregarEmprestimosIniciais() {
-    for (const emprestimo of EMPRESTIMOS_INICIAIS) {
-        EMPRESTIMOS.push(emprestimo)
+export function carregarEmprestimosIniciais(): void {
+    EMPRESTIMOS.splice(0, EMPRESTIMOS.length, ...EMPRESTIMOS_INICIAIS.map(emprestimo => ({ ...emprestimo })))
+}
+
+export async function realizarEmprestimo(clienteId: number, livroId: number): Promise<boolean> {
+    const cliente = CLIENTES.find(item => item.id === clienteId)
+    if (!cliente) {
+        console.log("O cliente informado não existe.")
+        return false
     }
+
+    const livro = LIVROS.find(item => item.id === livroId)
+    if (!livro) {
+        console.log("O livro informado não existe.")
+        return false
+    }
+
+    const quantidade = await perguntarInteiro(
+        `O estoque atual de "${livro.nome}" é ${livro.estoque}. Quantos exemplares serão emprestados?\n`,
+        1
+    )
+    if (quantidade === null) return false
+
+    if (quantidade > livro.estoque) {
+        console.log("A quantidade informada é maior que o estoque.")
+        return false
+    }
+
+    livro.estoque -= quantidade
+    const dataAtual = new Date().toISOString().slice(0, 10)
+    const emprestimo: Emprestimo = {
+        cliente_id: cliente.id,
+        livro_id: livro.id,
+        quantidade,
+        data_emprestimo: dataAtual
+    }
+
+    EMPRESTIMOS.push(emprestimo)
+    console.log("O empréstimo foi realizado com sucesso.")
+    return true
 }
 
-export function realizarEmprestimo(cliente_id:number, livro_id:number) {
-    LIVROS.forEach(livro => {
-        if (livro_id === livro.id){
-            CLIENTES.forEach(cliente => {
-                if (cliente_id === cliente.id ){
-                    const quantidade = Number(prompt(`A quantidade atual do livro ${LIVROS[livro_id]?.nome} é de ${LIVROS[livro.id]?.estoque}. Qual a quantidade de livros que será emprestado?\n`))
-                    if (quantidade > LIVROS[livro_id]?.estoque) {
-                        console.log('A quantidade informada é maior que o estoque.')
-                    } else {
-                        LIVROS[livro_id].estoque -= quantidade
+export function realizarDevolucao(clienteId: number, livroId: number): boolean {
+    const cliente = CLIENTES.find(item => item.id === clienteId)
+    if (!cliente) {
+        console.log("O cliente informado não existe.")
+        return false
+    }
 
-                        let dataAtual:Date | string = new Date()
-                        dataAtual = dataAtual.toString()
-                        const emprestimo:Emprestimo = {cliente_id:cliente_id, livro_id:livro_id, quantidade:quantidade, data_emprestimo:dataAtual}
+    const livro = LIVROS.find(item => item.id === livroId)
+    if (!livro) {
+        console.log("O livro informado não existe.")
+        return false
+    }
 
-                        EMPRESTIMOS.push(emprestimo)
+    const emprestimosDoLivro = EMPRESTIMOS.filter(
+        emprestimo => emprestimo.cliente_id === clienteId && emprestimo.livro_id === livroId
+    )
+    if (emprestimosDoLivro.length === 0) {
+        console.log(`O empréstimo de "${livro.nome}" para "${cliente.nome}" não existe.`)
+        return false
+    }
 
-                        console.log('O empréstimo foi realizado com sucesso.')
-                    }
-                }
-            });
+    const quantidadeDevolvida = emprestimosDoLivro.reduce(
+        (total, emprestimo) => total + emprestimo.quantidade,
+        0
+    )
+    for (let indice = EMPRESTIMOS.length - 1; indice >= 0; indice--) {
+        const emprestimo = EMPRESTIMOS[indice]
+        if (emprestimo?.cliente_id === clienteId && emprestimo.livro_id === livroId) {
+            EMPRESTIMOS.splice(indice, 1)
         }
-    });
-}
+    }
 
-export function realizarDevolucao(cliente_id:number, livro_id:number) {
-    LIVROS.forEach(livro => {
-        if (livro_id === livro.id){
-            CLIENTES.forEach(cliente => {
-                if (cliente_id === cliente.id ){
-                    for (let i = 0; i < EMPRESTIMOS.length; i++) {
-                        if (EMPRESTIMOS[i]?.cliente_id === cliente_id && EMPRESTIMOS[i]?.livro_id === livro_id){
-                            LIVROS[livro_id].estoque += EMPRESTIMOS[i]?.quantidade
-
-                            EMPRESTIMOS.splice(i)
-
-                            console.log('A devolução foi realizada com sucesso.')
-                        } else {
-                            console.log(`O emprestimo do livro ${LIVROS[livro_id].nome} para o cliente ${CLIENTES[cliente_id].nome} não existe.`)
-                        }
-                        
-                    }
-                    
-                } else{
-                    console.log('O cliente informado não existe.')
-                }
-            });
-        } else {
-            console.log('O livro informado não existe.')
-        }
-    });
+    livro.estoque += quantidadeDevolvida
+    console.log(`A devolução de ${quantidadeDevolvida} exemplar(es) foi realizada com sucesso.`)
+    return true
 }

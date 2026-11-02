@@ -1,4 +1,5 @@
 import { erro } from "../utils/formatarTexto"
+import { perguntar } from "../utils/entrada"
 import { verificarRespostaAutor, verificarRespostaCliente, verificarRespostaEmprestimo, verificarRespostaLivro } from "../utils/verificarResposta"
 
 export function exibirCabecalho() {
@@ -7,7 +8,7 @@ export function exibirCabecalho() {
     console.log('============================\n')
 }
 
-export function exibirOpcoesIniciais() {
+export async function exibirOpcoesIniciais(): Promise<string | null> {
     console.log('1 - [CLIENTES]')
     console.log('2 - [AUTORES]')
     console.log('3 - [LIVROS]')
@@ -17,14 +18,10 @@ export function exibirOpcoesIniciais() {
 
     console.log('============================\n')
 
-    let resposta = prompt('Qual dos valores acima você gostaria de consultar as opções?\n')
-    while (resposta === null) {
-        resposta = prompt('O que você gostaria de realizar?\n')
-    }
-    return resposta
+    return perguntar('Qual dos valores acima você gostaria de consultar as opções?\n')
 }
 
-export function exibirSegundasOpcoes() {
+export async function exibirSegundasOpcoes(): Promise<string | null> {
     console.log('1 - [LISTAR TODOS]')
     console.log('2 - [CONSULTAR UM ESPECÍFICO]')
     console.log('3 - [CADASTRAR]')
@@ -33,47 +30,35 @@ export function exibirSegundasOpcoes() {
 
     console.log('============================\n')
 
-    let resposta = prompt('O que você gostaria de realizar?\n')
-
-    while (resposta === null) {
-        resposta = prompt('O que você gostaria de realizar?\n')
-    }
-
-    return resposta
+    return perguntar('O que você gostaria de realizar?\n')
 }
 
 
-export function exibirSegundasOpcoesEmprestimo() {
+export async function exibirSegundasOpcoesEmprestimo(): Promise<string | null> {
     console.log('1 - [REALIZAR UM EMPRÉSTIMO]')
     console.log('2 - [REALIZAR UMA DEVOLUÇÃO]\n')
 
     console.log('============================\n')
     
-    let resposta = prompt('O que você gostaria de realizar?\n')
-
-    while (resposta === null) {
-        resposta = prompt('O que você gostaria de realizar?\n')
-    }
-
-    return resposta
+    return perguntar('O que você gostaria de realizar?\n')
 }
 
-export function questionarOpcoes(resposta:string) {
+export async function questionarOpcoes(resposta: string): Promise<void> {
     if (resposta === '1') {
-        const resposta2 = exibirSegundasOpcoes()
-        verificarRespostaCliente(resposta2)
+        const resposta2 = await exibirSegundasOpcoes()
+        if (resposta2 !== null) await verificarRespostaCliente(resposta2)
         
     } else if (resposta === '2'){
-        const resposta2 = exibirSegundasOpcoes()
-        verificarRespostaAutor(resposta2)
+        const resposta2 = await exibirSegundasOpcoes()
+        if (resposta2 !== null) await verificarRespostaAutor(resposta2)
         
     } else if (resposta === '3'){
-        const resposta2 = exibirSegundasOpcoes()
-        verificarRespostaLivro(resposta2)
+        const resposta2 = await exibirSegundasOpcoes()
+        if (resposta2 !== null) await verificarRespostaLivro(resposta2)
 
     } else if (resposta === '4'){
-        const resposta2 = exibirSegundasOpcoesEmprestimo()
-        verificarRespostaEmprestimo(resposta2)
+        const resposta2 = await exibirSegundasOpcoesEmprestimo()
+        if (resposta2 !== null) await verificarRespostaEmprestimo(resposta2)
         
     } else {
         erro('O valor inserido é inválido.')

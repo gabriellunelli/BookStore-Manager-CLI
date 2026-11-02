@@ -1,190 +1,123 @@
-import { Autor } from "../models/AutorModel";
-import { Cliente } from "../models/ClientesModel";
-import { Livro } from "../models/LivroModel";
-import { atualizarAutor, cadastrarAutor, consultarAutorEspecifico, listarAutores, removerAutor } from "../repositories/AutorRepository";
-import { atualizarCliente, cadastrarCliente, consultarClienteEspecifico, listarClientes, removerCliente } from "../repositories/ClienteRepository";
-import { realizarDevolucao, realizarEmprestimo } from "../repositories/EmprestimoRepository";
-import { atualizarLivro, cadastrarLivro, consultarLivroEspecifico, listarLivros, removerLivro } from "../repositories/LivroRepository";
-import { aviso, erro } from "./formatarTexto";
+import { Autor } from "../models/AutorModel"
+import { Cliente } from "../models/ClientesModel"
+import { Livro } from "../models/LivroModel"
+import { atualizarAutor, cadastrarAutor, consultarAutorEspecifico, listarAutores, removerAutor } from "../repositories/AutorRepository"
+import { atualizarCliente, cadastrarCliente, consultarClienteEspecifico, listarClientes, removerCliente } from "../repositories/ClienteRepository"
+import { realizarDevolucao, realizarEmprestimo } from "../repositories/EmprestimoRepository"
+import { atualizarLivro, cadastrarLivro, consultarLivroEspecifico, listarLivros, removerLivro } from "../repositories/LivroRepository"
+import { erro } from "./formatarTexto"
+import { perguntarData, perguntarInteiro, perguntarTexto } from "./entrada"
 
-export function verificarRespostaCliente(resposta:string){
-    if (resposta === '1') {
+export async function verificarRespostaCliente(resposta: string): Promise<void> {
+    if (resposta === "1") {
         listarClientes()
-    } else if (resposta === '2'){
-        let resposta = Number(prompt('Informe o id do cliente: '))
-        while (resposta === null) {
-            resposta = Number(prompt('Informe o id do cliente: '))
-        }
+    } else if (resposta === "2") {
+        const id = await perguntarInteiro("Informe o ID do cliente: ")
+        if (id !== null) consultarClienteEspecifico(id)
+    } else if (resposta === "3") {
+        const id = await perguntarInteiro("Informe o ID do cliente: ")
+        if (id === null) return
 
-        consultarClienteEspecifico(resposta)
+        const nome = await perguntarTexto("Digite o nome do cliente: ")
+        if (nome === null) return
 
-    } else if (resposta === '3'){
-        let id = Number(prompt('Informe o id do cliente: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do cliente: '))
-        }
+        const email = await perguntarTexto("Digite o e-mail do cliente: ")
+        if (email === null) return
 
-        let nome = prompt('Digite o nome do cliente: ')
-        while (nome === null) {
-          nome = prompt('Digite o nome do cliente: ')  
-        }
-
-        let email = prompt('Digite o e-mail do cliente: ')
-        while (email === null) {
-            email = prompt('Digite o e-mail do cliente: ')
-        }
-
-        const cliente:Cliente = {id:id, nome:nome, email:email}
-
+        const cliente: Cliente = { id, nome, email }
         cadastrarCliente(cliente)
-    } else if (resposta ==='4'){
-        let id = Number(prompt('Informe o id do cliente: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do cliente: '))
-        }
-
-        atualizarCliente(id)
-    } else if (resposta ==='5'){
-        let id = Number(prompt('Informe o id do cliente: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do cliente: '))
-        }
-
-        removerCliente(id)
+    } else if (resposta === "4") {
+        const id = await perguntarInteiro("Informe o ID do cliente: ")
+        if (id !== null) await atualizarCliente(id)
+    } else if (resposta === "5") {
+        const id = await perguntarInteiro("Informe o ID do cliente: ")
+        if (id !== null) removerCliente(id)
     } else {
-        erro('O valor informado é inválido.')
+        erro("O valor informado é inválido.")
     }
 }
 
-export function verificarRespostaAutor(resposta:string){
-    if (resposta === '1') {
+export async function verificarRespostaAutor(resposta: string): Promise<void> {
+    if (resposta === "1") {
         listarAutores()
-    } else if (resposta === '2'){
-        let resposta = Number(prompt('Informe o id do autor: '))
-        while (resposta === null) {
-            resposta = Number(prompt('Informe o id do autor: '))
-        }
-        
-        consultarAutorEspecifico(resposta)
+    } else if (resposta === "2") {
+        const id = await perguntarInteiro("Informe o ID do autor: ")
+        if (id !== null) consultarAutorEspecifico(id)
+    } else if (resposta === "3") {
+        const id = await perguntarInteiro("Informe o ID do autor: ")
+        if (id === null) return
 
-    } else if (resposta === '3'){
-        let id = Number(prompt('Informe o id do autor: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do autor: '))
-        }
+        const nome = await perguntarTexto("Digite o nome do autor: ")
+        if (nome === null) return
 
-        let nome = prompt('Digite o nome do autor: ')
-        while (nome === null) {
-          nome = prompt('Digite o nome do autor: ')  
-        }
-
-        const autor:Autor = {id:id, nome:nome}
-
+        const autor: Autor = { id, nome }
         cadastrarAutor(autor)
-    } else if (resposta ==='4'){
-        let id = Number(prompt('Informe o id do autor: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do autor: '))
-        }
-
-        atualizarAutor(id)
-    } else if (resposta ==='5'){
-        let id = Number(prompt('Informe o id do autor: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do autor: '))
-        }
-
-        removerAutor(id)
+    } else if (resposta === "4") {
+        const id = await perguntarInteiro("Informe o ID do autor: ")
+        if (id !== null) await atualizarAutor(id)
+    } else if (resposta === "5") {
+        const id = await perguntarInteiro("Informe o ID do autor: ")
+        if (id !== null) removerAutor(id)
     } else {
-        erro('O valor informado é inválido.')
+        erro("O valor informado é inválido.")
     }
 }
 
-export function verificarRespostaLivro(resposta:string){
-    if (resposta === '1') {
+export async function verificarRespostaLivro(resposta: string): Promise<void> {
+    if (resposta === "1") {
         listarLivros()
-    } else if (resposta === '2'){
-        let resposta = Number(prompt('Informe o id do livro: '))
-        while (resposta === null) {
-            resposta = Number(prompt('Informe o id do livro: '))
-        }
-        
-        consultarLivroEspecifico(resposta)
+    } else if (resposta === "2") {
+        const id = await perguntarInteiro("Informe o ID do livro: ")
+        if (id !== null) consultarLivroEspecifico(id)
+    } else if (resposta === "3") {
+        const id = await perguntarInteiro("Informe o ID do livro: ")
+        if (id === null) return
 
-    } else if (resposta === '3'){
-        let id = Number(prompt('Informe o id do livro: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do livro: '))
-        }
+        const nome = await perguntarTexto("Digite o nome do livro: ")
+        if (nome === null) return
 
-        let nome = prompt('Digite o nome do livro: ')
-        while (nome === null) {
-          nome = prompt('Digite o nome do livro: ')  
-        }
+        const autorId = await perguntarInteiro("Digite o ID do autor: ")
+        if (autorId === null) return
 
-        let autor_id = Number(prompt('Digite o id do autor: '))
-        while (autor_id === null) {
-            autor_id = Number(prompt('Digite o id do autor: '))
-        }
-        
-        let data_lancamento = prompt('Digite a data de lançamento: ')
-        while (data_lancamento === null) {
-            data_lancamento = prompt('Digite a data de lançamento: ')
-        }
+        const dataLancamento = await perguntarData("Digite a data de lançamento (AAAA-MM-DD): ")
+        if (dataLancamento === null) return
 
-        let estoque = Number(prompt('Digite o estoque do livro: '))
-        while (estoque === null) {
-            estoque = Number(prompt('Digite o estoque do livro: '))
+        const estoque = await perguntarInteiro("Digite o estoque do livro: ", 0)
+        if (estoque === null) return
+
+        const livro: Livro = {
+            id,
+            nome,
+            autor_id: autorId,
+            data_lancamento: dataLancamento,
+            estoque
         }
-
-        const livro:Livro = {id:id, nome:nome, autor_id:autor_id, data_lancamento:data_lancamento, estoque:estoque}
-
         cadastrarLivro(livro)
-    } else if (resposta ==='4'){
-        let id = Number(prompt('Informe o id do livro: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do livro: '))
-        }
-
-        atualizarLivro(id)
-    } else if (resposta ==='5'){
-        let id = Number(prompt('Informe o id do livro: '))
-        while (id === null) {
-            id = Number(prompt('Informe o id do livro: '))
-        }
-
-        removerLivro(id)
+    } else if (resposta === "4") {
+        const id = await perguntarInteiro("Informe o ID do livro: ")
+        if (id !== null) await atualizarLivro(id)
+    } else if (resposta === "5") {
+        const id = await perguntarInteiro("Informe o ID do livro: ")
+        if (id !== null) removerLivro(id)
     } else {
-        erro('O valor informado é inválido.')
+        erro("O valor informado é inválido.")
     }
 }
 
-export function verificarRespostaEmprestimo(resposta:string){
-    if (resposta === '1') {
-        let cliente_id = Number(prompt('Informe o id do cliente: '))
-        while (cliente_id === null) {
-            cliente_id = Number(prompt('Informe o id do cliente: '))
-        }
+export async function verificarRespostaEmprestimo(resposta: string): Promise<void> {
+    if (resposta === "1" || resposta === "2") {
+        const clienteId = await perguntarInteiro("Informe o ID do cliente: ")
+        if (clienteId === null) return
 
-        let livro_id = Number(prompt('Informe o id do livro: '))
-        while (livro_id === null) {
-            livro_id = Number(prompt('Informe o id do livro: '))
-        }
+        const livroId = await perguntarInteiro("Informe o ID do livro: ")
+        if (livroId === null) return
 
-        realizarEmprestimo(cliente_id, livro_id)
-    } else if (resposta === '2'){
-        let cliente_id = Number(prompt('Informe o id do cliente: '))
-        while (cliente_id === null) {
-            cliente_id = Number(prompt('Informe o id do cliente: '))
+        if (resposta === "1") {
+            await realizarEmprestimo(clienteId, livroId)
+        } else {
+            realizarDevolucao(clienteId, livroId)
         }
-
-        let livro_id = Number(prompt('Informe o id do livro: '))
-        while (livro_id === null) {
-            livro_id = Number(prompt('Informe o id do livro: '))
-        }
-
-        realizarDevolucao(cliente_id, livro_id)
     } else {
-        erro('O valor informado é inválido.')
+        erro("O valor informado é inválido.")
     }
 }

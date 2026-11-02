@@ -13,12 +13,16 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "run dev": "npx tsc && node dist/main.js"
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "npm run build && node dist/main.js",
+    "run dev": "npm run dev",
+    "test": "npm run build && node --test"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "typescript": "^7.0.2"
   }
 }

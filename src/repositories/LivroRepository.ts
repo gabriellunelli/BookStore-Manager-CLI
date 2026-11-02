@@ -1,80 +1,91 @@
-import { LIVROS_INICIAIS } from "../data/seed";
-import { Livro } from "../models/LivroModel";
-import { verificar } from "../utils/verificarVazio";
-import { AUTORES } from "./AutorRepository";
+import { LIVROS_INICIAIS } from "../data/seed"
+import { AUTORES, EMPRESTIMOS, LIVROS } from "../data/store"
+import { Livro } from "../models/LivroModel"
+import { perguntarData, perguntarInteiro, perguntarTexto } from "../utils/entrada"
+import { verificar } from "../utils/verificarVazio"
 
-export const LIVROS:Livro[] = []
+export { LIVROS }
 
-export function carregarLivrosIniciais() {
-    for (const livro of LIVROS_INICIAIS) {
-        LIVROS.push(livro)
+export function carregarLivrosIniciais(): void {
+    LIVROS.splice(0, LIVROS.length, ...LIVROS_INICIAIS.map(livro => ({ ...livro })))
+}
+
+export function cadastrarLivro(livro: Livro): boolean {
+    if (!Number.isSafeInteger(livro.id) || livro.id < 1 || !livro.nome.trim()) {
+        console.log("Não foi possível cadastrar: informe um ID e um nome válidos.")
+        return false
     }
+
+    if (LIVROS.some(livroCadastrado => livroCadastrado.id === livro.id)) {
+        console.log("Já existe um livro com esse ID.")
+        return false
+    }
+
+    if (!AUTORES.some(autor => autor.id === livro.autor_id)) {
+        console.log("O autor informado não existe.")
+        return false
+    }
+
+    if (!Number.isSafeInteger(livro.estoque) || livro.estoque < 0) {
+        console.log("O estoque deve ser um número inteiro igual ou maior que zero.")
+        return false
+    }
+
+    LIVROS.push({ ...livro, nome: livro.nome.trim() })
+    return true
 }
 
-export function cadastrarLivro(livro:Livro) {
-    AUTORES.forEach(autor => {
-        if (autor.id === livro.autor_id){
-            LIVROS.push(livro)
-        }
-    });
-    
-}
-
-export function listarLivros() {
+export function listarLivros(): void {
     console.log(LIVROS)
 }
 
-export function consultarLivroEspecifico(id:number) {
-    const verificacao = verificar(LIVROS[id])
-    if (verificacao === true){
-        console.log(LIVROS[id])
+export function consultarLivroEspecifico(id: number): Livro | null {
+    const livro = LIVROS.find(item => item.id === id)
+    if (!verificar(livro)) {
+        return null
     }
-    
+
+    console.log(livro)
+    return livro
 }
 
-export function atualizarLivro(id:number) {
-    if (LIVROS[id] != null && LIVROS[id] != undefined){
-
-        let novoNome = prompt('Informe o novo nome do livro: ')
-        while (novoNome === null) {
-            console.log('Nenhum dado informado, por favor digite um valor válido.')
-
-            novoNome = prompt('Informe o novo nome do livro: ')
-
-        }
-        LIVROS[id].nome = novoNome
-
-        let novoAutorId:number = Number(prompt('Informe o novo ID do autor: '))
-        while (novoAutorId === null) {
-            console.log('Nenhum dado informado, por favor digite um valor válido.')
-
-            novoAutorId = Number(prompt('Informe o novo ID do autor: '))
-
-            AUTORES.forEach(autor => {
-                if (novoAutorId === autor.id){
-                    LIVROS[id].autor_id = novoAutorId
-                }
-            });
-
-        }
-
-        let novaDataLancamento = prompt('Informe a nova data de lançamento do livro: ')
-        while (novaDataLancamento === null) {
-            console.log('Nenhum dado informado, por favor digite um valor válido.')
-
-            novaDataLancamento = prompt('Informe a nova data de lanaçamento do livro: ')
-
-        }
-        LIVROS[id].data_lancamento = novaDataLancamento
-
+export async function atualizarLivro(id: number): Promise<boolean> {
+    const livro = LIVROS.find(item => item.id === id)
+    if (!verificar(livro)) {
+        return false
     }
+
+    const novoNome = await perguntarTexto("Informe o novo nome do livro: ")
+    if (novoNome === null) return false
+
+    const novoAutorId = await perguntarInteiro("Informe o novo ID do autor: ")
+    if (novoAutorId === null) return false
+    if (!AUTORES.some(autor => autor.id === novoAutorId)) {
+        console.log("O autor informado não existe.")
+        return false
+    }
+
+    const novaDataLancamento = await perguntarData("Informe a nova data de lançamento (AAAA-MM-DD): ")
+    if (novaDataLancamento === null) return false
+
+    livro.nome = novoNome
+    livro.autor_id = novoAutorId
+    livro.data_lancamento = novaDataLancamento
+    return true
 }
 
-export function removerLivro(id:number) {
-    const verificacao = verificar(LIVROS[id])
-    if (verificacao === true){
-        LIVROS.splice(id)
-    } else {
-        console.log('O id informado não retorna nenhum livro.')
+export function removerLivro(id: number): boolean {
+    const indice = LIVROS.findIndex(item => item.id === id)
+    if (indice === -1) {
+        console.log("O ID informado não retorna nenhum livro.")
+        return false
     }
+
+    if (EMPRESTIMOS.some(emprestimo => emprestimo.livro_id === id)) {
+        console.log("Não é possível remover um livro que possui empréstimos cadastrados.")
+        return false
+    }
+
+    LIVROS.splice(indice, 1)
+    return true
 }

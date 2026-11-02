@@ -54,3 +54,24 @@ VALUES
     (2, 2, '2026-10-05'),
     (3, 4, '2026-10-10'),
     (4, 3, '2026-10-15');
+
+-- Consultas relacionais
+
+-- livros emprestados
+select c.nome, l.nome, e.data_emprestimo from livros as l
+inner join emprestimos as e on l.id = e.livro_id
+inner join clientes as c on e.cliente_id = c.id
+order by c.nome
+
+-- quantidade de empréstimos por livro
+select l.nome, count(e.livro_id) from emprestimos as e
+inner join livros as l on l.id = e.livro_id
+group by l.nome
+order by l.nome
+
+insert into clientes (nome, email)
+values ('Robert Rocha', 'rr.robert@gmail.com')
+-- clientes com empréstimos ativos
+select c.nome as clientes_ativos from clientes as c
+inner join emprestimos as e on c.id = e.cliente_id
+order by c.nome

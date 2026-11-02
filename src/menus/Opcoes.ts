@@ -17,7 +17,10 @@ export function exibirOpcoesIniciais() {
 
     console.log('============================\n')
 
-    const resposta = prompt('Qual dos valores acima você gostaria de consultar as opções?\n')
+    let resposta = prompt('Qual dos valores acima você gostaria de consultar as opções?\n')
+    while (resposta === null) {
+        resposta = prompt('O que você gostaria de realizar?\n')
+    }
     return resposta
 }
 
